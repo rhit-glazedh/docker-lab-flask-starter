@@ -1,0 +1,21 @@
+docker build -t notes:v1 .
+
+docker volume create notes-data
+
+
+docker run -d --name notes --network labnet -e NOTES_DIR=/srv/notes -v notes-data:/srv/notes notes:v1
+
+docker run --rm --network labnet curlimages/curl http://notes:8000/health
+
+docker run --rm --network labnet curlimages/curl -X POST -d "title=note 1" http://notes:8000/notes
+
+docker run --rm --network labnet curlimages/curl -X POST -d "title=note 2" http://notes:8000/notes
+
+docker run --rm --network labnet curlimages/curl http://notes:8000/api/notes
+
+[{"body":"","created":"2026-11-12T05:15:25+00:00","id":"b7c6b73e-30b4-4ece-8168-c9d40db3bb6e","title":"note 1"},{"body":"","created":"2026-11-12T05:16:22+00:00","id":"49c0cb36-c044-42b3-a625-0fa63cd99292","title":"note 2"}]
+docker rm -f notes
+
+docker run -d --name notes --network labnet -e NOTES_DIR=/srv/notes -v notes-data:/srv/notes notes:v1
+docker run --rm --network labnet curlimages/curl http://notes:8000/api/notes
+[{"body":"","created":"2026-11-12T05:15:25+00:00","id":"b7c6b73e-30b4-4ece-8168-c9d40db3bb6e","title":"note 1"},{"body":"","created":"2026-11-12T05:16:22+00:00","id":"49c0cb36-c044-42b3-a625-0fa63cd99292","title":"note 2"}]
